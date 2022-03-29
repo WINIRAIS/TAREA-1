@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "list_answer.c"
+#include "list.c"
 #include "list.h"
 
 typedef struct {
@@ -12,11 +12,7 @@ typedef struct {
     int anyo;
     int listaR;
 }Cancion;
-void aumentarMemoria(Cancion **vector, size_t tallaAumentada)
-{
-    (*vector) = (Cancion *) realloc(*vector, tallaAumentada * sizeof(Cancion));
-    if (*vector == NULL) exit(EXIT_FAILURE);
-}
+
 int llenarNombre(Cancion *song, char *linea){
     int i = 0;
 
@@ -158,54 +154,32 @@ void procesarLineaCSV(Cancion *song, char *linea){
     //Lista de Reproducción
     llenarLista(song, posI);
 }
-/*
-void mostrarCancion(Cancion *song){
-    printf("%s: \n%s (%d)\n",song->nombre, song->artista, song->anyo);
-    int cant = song->cantGen;
 
-    for (int i = 0 ; i < cant ;i++) printf("%s  ",song->genero[i]);
-    printf("\nLista de Reproducción %d\n\n",song->listaR);
-}*/
-
-void  llenarListaGlobal(Cancion* song, List* cancionesA){
-
-    pushBack(cancionesA,song);
-    //printf("->song : \n%s", song -> nombre);
+void  llenarListaGlobal(Cancion*song, List *cancionesA){
+    pushBack(cancionesA ,song->nombre);
+    Cancion *aux = lastList(cancionesA);
+    printf("%s", aux -> nombre);
+    printf("%s", song -> nombre);
 }
 
-int main()
+int main(int argc, char *argv[])
 {
-    List* musicas = createList();
+    List* cancionesA= createList();
     FILE *archivo = fopen("Canciones.csv", "rt");
     if (archivo == NULL){
         printf("ERROR AL ABRIR ARCHIVO");
         exit(1);
     }
     int lol = 15;
-    Cancion* vector = NULL;
+    Cancion array[lol];
     char linea[1024];
-    
+
     int cont = 0;
     while(cont < lol){
         fgets(linea, 1023, archivo);
-        aumentarMemoria(&vector,cont+1);
-        procesarLineaCSV(vector, linea);
-        //mostrarCancion(vector);
-        llenarListaGlobal(vector, musicas);
-        //pushBack(musicas,vector);
+        procesarLineaCSV(&array[cont], linea);
         cont++;
+        llenarListaGlobal(&array[cont], cancionesA);
     }
-    
-    Cancion *aux = firstList(musicas);
-    while (aux != NULL)
-    {
-        printf("\n->aux : %ld\n", aux -> anyo);
-        aux = nextList(musicas);
-    }
-    
-    
-    //Cancion *song = (Cancion*)malloc(sizeof(Cancion));
-    //procesarLinea(song, linea);
-
     return 0;
 }
