@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include<locale.h>
 #include "list_answer.c"
 #include "list.h"
 
@@ -174,18 +175,20 @@ void mostrarGenero(Cancion* lista){
     printf("\n");
 }
 void mostrarCancion2(List* lista){
+    setlocale(LC_CTYPE, "Spanish"); //libreria que limpia los errores de tipeo en español , se supones que deberia mostrar bien una tilde pero no sirve
     Cancion *aux = firstList(lista);
-        while (aux != NULL)
-        {
-            printf("\nCancion : %s\n", aux->nombre);
-            printf("Lista de Reproduccion : %s\n", aux->listaR);
-            printf("Artista : %s\n", aux->artista);
-            printf("Cantidad de Genero : %d\n", aux->cantGen);
-            mostrarGenero(aux);
-            printf("Anyo : %d\n", aux->anyo);
-            aux = nextList(lista);
-        }
-    free(aux);
+
+    while (aux != NULL)
+    {
+        printf("\nCancion : %s\n", aux->nombre);
+        printf("Lista de Reproduccion : %s\n", aux->listaR);
+        printf("Artista : %s\n", aux->artista);
+        printf("Cantidad de Genero : %d\n", aux->cantGen);
+        mostrarGenero(aux);
+        printf("Anyo : %d\n", aux->anyo);
+        aux = nextList(lista);
+    }
+
     return;
 }
 void chomp(char *s) {
@@ -245,33 +248,137 @@ void agregarCancion(List* lista){
     }
     return;
 }
+void EliminarCancion(List* lista){
+    char cancion [100];
+    int i = 0;
+    printf("Que cancion desea eliminar?\n");
+    fflush(stdin);
+    fgets(cancion,100,stdin);
+    chomp(cancion);
+    Cancion* aux = firstList(lista);
+    while(aux != NULL){
+        if(strcmp(aux->nombre, cancion) == 0){
+            popCurrent(lista);
+            i++;
+        }
+        aux = nextList(lista);
+    }
+    if (i > 0) printf("\n***ELIMINACION EXITOSA***\n");
+    else printf("\n***NO EXISTE ESA CANCION***\n");
+    printf("\n");
+}
+void buscarNombre(List* lista){
+    char cancion [100];
+    int i = 0;
+    printf("\nINGRESE NOMBRE DE LA CANCION : \n");
+    fflush(stdin);
+    fgets(cancion,100,stdin);
+    chomp(cancion);
+    Cancion* aux = firstList(lista);
+    while(aux != NULL){
+        if(strcmp(aux->nombre, cancion) == 0){
+            printf("\nCancion : %s\n", aux->nombre);
+            printf("Lista de Reproduccion : %s\n", aux->listaR);
+            printf("Artista : %s\n", aux->artista);
+            printf("Cantidad de Genero : %d\n", aux->cantGen);
+            mostrarGenero(aux);
+            printf("Anyo : %d\n", aux->anyo);
+            i++;
+        }
+        aux = nextList(lista);
+    }
+    if (i > 0) printf("\n***ESOS FUERON LOS RESULTADOS IMPRESOS EXITOSAMENTE***\n");
+    else printf("\n***NO EXISTE ESA CANCION***\n");
+    printf("\n");
+}
+void buscarArtista(List* lista){
+    char auxArtista [100];
+    int i = 0;
+    printf("\nINGRESE NOMBRE DEL ARTISTA : \n");
+    fflush(stdin);
+    fgets(auxArtista,100,stdin);
+    chomp(auxArtista);
+    Cancion* aux = firstList(lista);
+    while(aux != NULL){
+        if(strcmp(aux->artista, auxArtista) == 0){
+            printf("\nCancion : %s\n", aux->nombre);
+            printf("Lista de Reproduccion : %s\n", aux->listaR);
+            printf("Artista : %s\n", aux->artista);
+            printf("Cantidad de Genero : %d\n", aux->cantGen);
+            mostrarGenero(aux);
+            printf("Anyo : %d\n", aux->anyo);
+            i++;
+        }
+        aux = nextList(lista);
+    }
+    if (i > 0) printf("\n***ESOS FUERON LOS RESULTADOS***\n");
+    else printf("\n***NO EXISTE ESE ARTISTA***\n");
+    printf("\n");
+}
+void buscarGenero(List* lista){
+    char auxGenero [100];
+    bool entra = true;
+    int i = 0;
+    printf("\nINGRESE NOMBRE DEL GENERO : \n");
+    fflush(stdin);
+    fgets(auxGenero,100,stdin);
+    chomp(auxGenero);
+    Cancion* aux = firstList(lista);
+    while(aux != NULL){
+        for(int a = 0 ; a < aux->cantGen ; a++){
+            if(entra){
+                if(strcmp(aux->genero[a], auxGenero) == 0){
+                    printf("\nCancion : %s\n", aux->nombre);
+                    printf("Lista de Reproduccion : %s\n", aux->listaR);
+                    printf("Artista : %s\n", aux->artista);
+                    printf("Cantidad de Genero : %d\n", aux->cantGen);
+                    mostrarGenero(aux);
+                    printf("Anyo : %d\n", aux->anyo);
+                    entra = false;
+                    i++;
+                }
+            }
+            if(aux == NULL) break;
+        }
+        entra = true;
+        aux = nextList(lista);
+        
+    }
+    if (i > 0) printf("\n***ESOS FUERON LOS RESULTADOS***\n");
+    else printf("\n***NO EXISTE ESE GENERO***\n");
+    printf("\n");
+}
+bool buscarCancion(List* lista){
+    int respuesta;
+    printf("Buscar por : Nombre (1) | Artista (2) | Genero (3) | Volver al Menu (4)\n");
+    scanf("%d", &respuesta);
+    if(respuesta == 1) buscarNombre(lista);
+    if(respuesta == 2) buscarArtista(lista);
+    if(respuesta == 3) buscarGenero(lista);
+    if(respuesta == 4) return false;
+    return true;
+}
 bool opcionMenu(List* lista){
     int respuesta;
-    printf("Que operacion desea realizar: \n\nAgregar Cancion (1)\nBuscar Cancion (2)\nEliminar Cancion (3)\nMostrar Lista de Canciones (4)\nSalir del Menu (5)\n\n");
+    printf("Que operacion desea realizar: \n\nAgregar Cancion (1)\nBuscar Cancion (2)\nEliminar Cancion (3)\nMostrar Lista de Canciones (4)\nFinalizar Ejecucion (5)\n\n");
     scanf("%d", &respuesta);    
     if(respuesta == 1){
         agregarCancion(lista);
-        //mostrarCancion2(lista);
         return true;
     }
     if(respuesta == 2){
-        //buscarCancion(lista);
-        printf("CASO 2 EXITOSO\n");
+        while(buscarCancion(lista));
         return true;
     }
     if(respuesta == 3){
-        //EliminarCancion(lista);
-        printf("CASO 3 EXITOSO\n");
+        EliminarCancion(lista);
         return true;
     }
     if(respuesta == 4){
         mostrarCancion2(lista);
         return true;
     }
-    if(respuesta == 5){
-        printf("Selecciono Opcion 5 Favor de Cerrar '.exe' Para Finalizar Ejecucion\n");
-        return false; 
-    }
+    if(respuesta == 5) return false; 
 }
 int main()
 {
@@ -291,19 +398,13 @@ int main()
         if(fgets(linea, 1023, archivo) != NULL){
             aumentarMemoria(&nuevaCancion);
             procesarLineaCSV(nuevaCancion, linea);
-            //mostrarCancion(nuevaCancion);
             pushBack(listaGlobal,nuevaCancion);
 
-        }else{
-            //free(nuevaCancion);
-            break; 
-        }  
+        }else break;
     }
     fclose(archivo);
     //Funcion que muestra las opciones para la musica
     while (opcionMenu(listaGlobal));
-    scanf(" ");
 
     return 0;
-}
-                
+}            
